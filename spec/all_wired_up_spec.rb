@@ -161,34 +161,47 @@ describe AllWiredUp do
 
   end
 
-  # it "shoudl reduce circuit level by level" do
+  it "shoudl reduce circuit level by level" do
 
-  #   circuit3 = [
-  #     '0-------------|',
-  #     '              O------------|',
-  #     '1-------------|            |',
-  #     '                           X------------@',
-  #     '1-------------|            |',
-  #     '              X------------|',
-  #     '1-------------|'
-  #   ]
+    circuit3 = [
+      "0-------------|\n",
+      "              O------------|\n",
+      "1-------------|            |\n",
+      "                           X------------@\n",
+      "1-------------|            |\n",
+      "              X------------|\n",
+      "1-------------|"
+    ]
 
-  #   x = @o.get_rid_of_wires(circuit3)
-  #   x = @o.replace_level_zero_gate(x)
+    circuit3 = [
+      "0-------------|\n",
+      "              A------------|\n",
+      "1-------------|            |\n",
+      "                           X------------@\n",
+      "1-------------|            |\n",
+      "              N------------|\n",
+      "\n",
+      "0-------------|\n",
+      "              O------------|\n",
+      "1-------------|            |\n",
+      "                           X------------@\n",
+      "1-------------|            |\n",
+      "              X------------|\n",
+      "1-------------|"
+    ]
 
-  #   x.delete_if do |x|
-  #     x =~ /^\s*$/
-  #   end
+    2.times do
+      circuit3 = @o.get_rid_of_wires(circuit3)
+      circuit3 = @o.replace_level_zero_gate(circuit3)
+      circuit3.delete_if { |line| [" \n"," "].include? line }
+    end
 
-  #   x = @o.get_rid_of_wires(x)
-  #   x = @o.replace_level_zero_gate(x)
+    circuit3.should == [
+      "0------------@\n",
+      "\n",
+      "1------------@\n"
+    ]
 
-  #   x.delete_if do |x|
-  #     x =~ /^\s*$/
-  #   end
-
-  #   x.should == ["1------------@"]
-
-  # end
+  end
 
 end
