@@ -122,10 +122,32 @@ describe AllWiredUp do
     ]
 
     expected1 = [
-      '1-----------@'
+      ' ',
+      ' ',
+      '1-----------@',
+      ' '
+    ]
+
+    circuit2 = [
+      '0',
+      'A------------|',
+      '1            |',
+      '             X------------@',
+      '1            |',
+      'N------------|'
+    ]
+
+    expected2 = [
+      ' ',
+      '0------------|',
+      '             |',
+      '             X------------@',
+      '             |',
+      '0------------|'
     ]
 
     @o.replace_level_zero_gate(circuit1).should == expected1
+    @o.replace_level_zero_gate(circuit2).should == expected2
 
   end
 

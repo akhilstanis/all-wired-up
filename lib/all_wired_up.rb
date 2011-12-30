@@ -33,7 +33,36 @@ class AllWiredUp
   end
 
   def replace_level_zero_gate circuit
-
+    level_zero = circuit.collect do |line|
+      line[0]
+    end
+    gates = {}
+    inputs = []
+    output_index = 0
+    level_zero.each_index do |index|
+      current_input = level_zero[index]
+      if current_input =~ /[XAON]/
+        output_index = index
+        inputs << current_input
+      elsif current_input == ' '
+        gates[output_index] = inputs
+        inputs = []
+      else
+        inputs << current_input
+      end
+      if level_zero.last == current_input
+        inputs << current_input
+        gates[output_index] = inputs
+        inputs = []
+      end
+    end
+    circuit.each_index do |index|
+      if gates[index]
+        circuit[index][0] = gate_out(gates[index])
+      else
+        circuit[index][0] = " "
+      end
+    end
   end
 
 end
