@@ -32,10 +32,7 @@ class AllWiredUp
     end
   end
 
-  def replace_level_zero_gate circuit
-    level_zero = circuit.collect do |line|
-      line[0]
-    end
+  def reduction_hash level_zero
     gates = {}
     inputs = []
     output_index = 0
@@ -44,7 +41,7 @@ class AllWiredUp
       if current_input =~ /[XAON]/
         output_index = index
         inputs << current_input
-      elsif current_input == ' ' or current_input.nil? or current_input == '\n'
+      elsif current_input == ' ' or current_input.nil? or current_input == "\n"
         gates[output_index] = inputs
         inputs = []
       else
@@ -55,6 +52,14 @@ class AllWiredUp
       gates[output_index] = inputs
       inputs = []
     end
+    gates
+  end
+
+  def replace_level_zero_gate circuit
+    level_zero = circuit.collect do |line|
+      line[0]
+    end
+
     circuit.each_index do |index|
       if gates[index]
         circuit[index][0] = gate_out(gates[index])

@@ -80,12 +80,24 @@ describe AllWiredUp do
     @o.get_rid_of_wires(circuitfile).should == expected
   end
 
-  # it "should find gate outputs" do
-  #   @o.gate_out(['0','|','O','1']).should == '1'
-  #   @o.gate_out(['0','A','1']).should == '0'
-  #   @o.gate_out(['1','N']).should == '0'
-  #   @o.gate_out(['1','X','1']).should == '0'
-  # end
+  it "should find gate outputs" do
+    @o.gate_out(['0','|','O','1']).should == '1'
+    @o.gate_out(['0','A','1']).should == '0'
+    @o.gate_out(['1','N']).should == '0'
+    @o.gate_out(['1','X','1']).should == '0'
+  end
+
+  it "should get the reduction hash" do
+    circuit_level_zero_0 = @o.get_rid_of_wires(circuits[0]).collect { |line| line[0] }
+    circuit_level_zero_1 = @o.get_rid_of_wires(circuits[1]).collect { |line| line[0] }
+    circuit_level_zero_2 = @o.get_rid_of_wires(circuits[2]).collect { |line| line[0] }
+    circuit_level_zero = @o.get_rid_of_wires(circuitfile).collect { |line| line[0] }
+
+    @o.reduction_hash(circuit_level_zero_0).should == { 2 => %w(0 | O 1) }
+    @o.reduction_hash(circuit_level_zero_1).should == { 1 => %w(0 A 1), 5 => %w(1 N) }
+    @o.reduction_hash(circuit_level_zero_2).should == { 1 => %w(0 O 1), 5 => %w(1 X 1) }
+    @o.reduction_hash(circuit_level_zero).should == { 2 => %w(0 | O 1), 6 => %w(0 A 1), 10 => %w(1 N), 13 => %w(0 O 1), 17 => %w(1 X 1) }
+  end
 
   # it "should find output for a gate stage with its output" do
 
