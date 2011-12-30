@@ -44,17 +44,16 @@ class AllWiredUp
       if current_input =~ /[XAON]/
         output_index = index
         inputs << current_input
-      elsif current_input == ' '
+      elsif current_input == ' ' or current_input.nil? or current_input == '\n'
         gates[output_index] = inputs
         inputs = []
       else
         inputs << current_input
       end
-      if level_zero.last == current_input
-        inputs << current_input
-        gates[output_index] = inputs
-        inputs = []
-      end
+    end
+    unless inputs.empty?
+      gates[output_index] = inputs
+      inputs = []
     end
     circuit.each_index do |index|
       if gates[index]

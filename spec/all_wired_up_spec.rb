@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'all_wired_up'
+require 'pp'
 
 describe AllWiredUp do
 
@@ -146,8 +147,95 @@ describe AllWiredUp do
       '0------------|'
     ]
 
+
+    circuit3 = [
+      '0',
+      'O------------|',
+      '1            |',
+      '             X------------@',
+      '1            |',
+      'X------------|',
+      '1'
+    ]
+
+    expected3 = [
+      ' ',
+      '1------------|',
+      '             |',
+      '             X------------@',
+      '             |',
+      '0------------|',
+      ' '
+    ]
+
+    circuit4 = [
+      '0',
+      'A------------|',
+      '1            |',
+      '             X------------@',
+      '1            |',
+      'N------------|',
+      '',
+      '0',
+      'O------------|',
+      '1            |',
+      '             X------------@',
+      '1            |',
+      'X------------|',
+      '1'
+    ]
+
+    expected4 = [
+      ' ',
+      '0------------|',
+      '             |',
+      '             X------------@',
+      '             |',
+      '0------------|',
+      ' ',
+      ' ',
+      '1------------|',
+      '             |',
+      '             X------------@',
+      '             |',
+      '0------------|',
+      ' '
+    ]
+
     @o.replace_level_zero_gate(circuit1).should == expected1
     @o.replace_level_zero_gate(circuit2).should == expected2
+    @o.replace_level_zero_gate(circuit3).should == expected3
+    @o.replace_level_zero_gate(circuit4).should == expected4
+
+  end
+
+  it "shoudl reduce circuit level by level" do
+
+    circuit3 = [
+      '0-------------|',
+      '              O------------|',
+      '1-------------|            |',
+      '                           X------------@',
+      '1-------------|            |',
+      '              X------------|',
+      '1-------------|'
+    ]
+
+    x = @o.get_rid_of_wires(circuit3)
+    x = @o.replace_level_zero_gate(x)
+
+    x.delete_if do |x|
+      x =~ /^\s*$/
+    end
+
+    x = @o.get_rid_of_wires(x)
+    x = @o.replace_level_zero_gate(x)
+
+    x.delete_if do |x|
+      x =~ /^\s*$/
+    end
+
+    x.should == ["1------------@"]
 
   end
 
