@@ -8,7 +8,11 @@ class AllWiredUp
       else
         wire_or_space = line[1..limit]
       end
-      line.sub wire_or_space, ''
+      if line.empty?
+        ''
+      else
+        line.sub wire_or_space, ''
+      end
     end
   end
 
@@ -23,11 +27,13 @@ class AllWiredUp
       stage.delete 'N'
       stage.first == '0' ? '1' : '0'
     when stage.include?('X')
-      ones = stage.select do |input|
-        input == '1'
-      end
+      ones = stage.select { |input| input == '1' }
       ones.count % 2 == 0 ? '0' : '1'
     end
+  end
+
+  def replace_level_zero_gate circuit
+
   end
 
 end
