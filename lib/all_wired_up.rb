@@ -59,12 +59,12 @@ class AllWiredUp
     level_zero = circuit.collect do |line|
       line[0]
     end
-
+    gates = reduction_hash level_zero
     circuit.each_index do |index|
       if gates[index]
         circuit[index][0] = gate_out(gates[index])
       else
-        circuit[index][0] = " "
+        circuit[index][0] = " " unless circuit[index][0] == "\n"
       end
     end
   end

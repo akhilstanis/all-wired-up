@@ -99,101 +99,67 @@ describe AllWiredUp do
     @o.reduction_hash(circuit_level_zero).should == { 2 => %w(0 | O 1), 6 => %w(0 A 1), 10 => %w(1 N), 13 => %w(0 O 1), 17 => %w(1 X 1) }
   end
 
-  # it "should find output for a gate stage with its output" do
+  it "should find output for a gate stage with its output" do
 
-  #   circuit1 = [
-  #     '0',
-  #     '|',
-  #     'O-----------@',
-  #     '1'
-  #   ]
+    expected0 = [
+      " \n",
+      " \n",
+      "1-----------@\n",
+      " \n"
+    ]
 
-  #   expected1 = [
-  #     ' ',
-  #     ' ',
-  #     '1-----------@',
-  #     ' '
-  #   ]
+    expected1 = [
+      " \n",
+      "0------------|\n",
+      "             |\n",
+      "             X------------@\n",
+      "             |\n",
+      "0------------|\n"
+    ]
 
-  #   circuit2 = [
-  #     '0',
-  #     'A------------|',
-  #     '1            |',
-  #     '             X------------@',
-  #     '1            |',
-  #     'N------------|'
-  #   ]
+    expected2 = [
+      " \n",
+      "1------------|\n",
+      "             |\n",
+      "             X------------@\n",
+      "             |\n",
+      "0------------|\n",
+      " "
+    ]
 
-  #   expected2 = [
-  #     ' ',
-  #     '0------------|',
-  #     '             |',
-  #     '             X------------@',
-  #     '             |',
-  #     '0------------|'
-  #   ]
+    expected = [
+      " \n",
+      " \n",
+      "1-----------@\n",
+      " \n",
+      "\n",
+      " \n",
+      "0------------|\n",
+      "             |\n",
+      "             X------------@\n",
+      "             |\n",
+      "0------------|\n",
+      "\n",
+      " \n",
+      "1------------|\n",
+      "             |\n",
+      "             X------------@\n",
+      "             |\n",
+      "0------------|\n",
+      " "
+    ]
 
+    circuit0 = @o.get_rid_of_wires(circuits[0])
+    circuit1 = @o.get_rid_of_wires(circuits[1])
+    circuit2 = @o.get_rid_of_wires(circuits[2])
+    circuit = @o.get_rid_of_wires(circuitfile)
 
-  #   circuit3 = [
-  #     '0',
-  #     'O------------|',
-  #     '1            |',
-  #     '             X------------@',
-  #     '1            |',
-  #     'X------------|',
-  #     '1'
-  #   ]
+    @o.replace_level_zero_gate(circuit0).should == expected0
+    @o.replace_level_zero_gate(circuit1).should == expected1
+    @o.replace_level_zero_gate(circuit2).should == expected2
+    @o.replace_level_zero_gate(circuit).should == expected
 
-  #   expected3 = [
-  #     ' ',
-  #     '1------------|',
-  #     '             |',
-  #     '             X------------@',
-  #     '             |',
-  #     '0------------|',
-  #     ' '
-  #   ]
-
-  #   circuit4 = [
-  #     '0',
-  #     'A------------|',
-  #     '1            |',
-  #     '             X------------@',
-  #     '1            |',
-  #     'N------------|',
-  #     '',
-  #     '0',
-  #     'O------------|',
-  #     '1            |',
-  #     '             X------------@',
-  #     '1            |',
-  #     'X------------|',
-  #     '1'
-  #   ]
-
-  #   expected4 = [
-  #     ' ',
-  #     '0------------|',
-  #     '             |',
-  #     '             X------------@',
-  #     '             |',
-  #     '0------------|',
-  #     ' ',
-  #     ' ',
-  #     '1------------|',
-  #     '             |',
-  #     '             X------------@',
-  #     '             |',
-  #     '0------------|',
-  #     ' '
-  #   ]
-
-  #   @o.replace_level_zero_gate(circuit1).should == expected1
-  #   @o.replace_level_zero_gate(circuit2).should == expected2
-  #   @o.replace_level_zero_gate(circuit3).should == expected3
-  #   @o.replace_level_zero_gate(circuit4).should == expected4
-
-  # end
+  end
 
   # it "shoudl reduce circuit level by level" do
 
