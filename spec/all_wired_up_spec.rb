@@ -161,19 +161,44 @@ describe AllWiredUp do
 
   end
 
-  it "shoudl reduce circuit level by level" do
+  it "should reduce bulbs at level zero to ON or OFF" do
 
-    circuit3 = [
-      "0-------------|\n",
-      "              O------------|\n",
-      "1-------------|            |\n",
-      "                           X------------@\n",
-      "1-------------|            |\n",
-      "              X------------|\n",
-      "1-------------|"
+    circuit = [
+      "0------------@\n",
+      "\n",
+      "1------------@\n"
     ]
 
-    circuit3 = [
+    @o.find_and_replace_bulbs_in_level(circuit).should == ["OFF\n","\n","ON\n"]
+
+  end
+
+  it "should find whether there are any bulbs t o be processed" do
+
+    circuit0 = ["OFF\n","\n","ON\n"]
+
+    circuit1 = [
+      "0------------@\n",
+      "\n",
+      "1------------@\n"
+    ]
+
+    circuit2 = [
+      " \n",
+      " \n",
+      "1-----------@\n",
+      " \n"
+    ]
+
+    @o.any_more_bulbs?(circuit0).should == false
+    @o.any_more_bulbs?(circuit1).should == true
+    @o.any_more_bulbs?(circuit2).should == true
+
+  end
+
+  it "shoudl reduce circuit level by level" do
+
+    circuit = [
       "0-------------|\n",
       "              A------------|\n",
       "1-------------|            |\n",
@@ -190,17 +215,9 @@ describe AllWiredUp do
       "1-------------|"
     ]
 
-    2.times do
-      circuit3 = @o.get_rid_of_wires(circuit3)
-      circuit3 = @o.replace_level_zero_gate(circuit3)
-      circuit3.delete_if { |line| [" \n"," "].include? line }
-    end
+    circuit = @o.process circuit
 
-    circuit3.should == [
-      "0------------@\n",
-      "\n",
-      "1------------@\n"
-    ]
+    circuit.should == ["OFF\n","\n","ON\n"]
 
   end
 

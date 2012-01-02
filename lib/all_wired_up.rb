@@ -16,6 +16,16 @@ class AllWiredUp
     end
   end
 
+  def find_and_replace_bulbs_in_level circuit
+    circuit.collect do |line|
+      if line =~ /^[01]-*@\n$/
+        line[0] == "1" ? "ON\n" : "OFF\n"
+      else
+        line
+      end
+    end
+  end
+
   def gate_out stage
     stage.delete '|'
     case
@@ -67,6 +77,24 @@ class AllWiredUp
         circuit[index][0] = " " unless circuit[index][0] == "\n"
       end
     end
+  end
+
+  def any_more_bulbs? circuit
+    ret = false
+    circuit.each do |line|
+      ret = true if line =~ /-*@$/
+    end
+    ret
+  end
+
+  def process circuit
+    while any_more_bulbs?(circuit) do
+      circuit = get_rid_of_wires(circuit)
+      circuit = replace_level_zero_gate(circuit)
+      circuit = find_and_replace_bulbs_in_level(circuit)
+      circuit.delete_if { |line| [" \n"," "].include? line }
+    end
+    p circuit
   end
 
 end
