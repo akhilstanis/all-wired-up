@@ -9,6 +9,7 @@ describe AllWiredUp do
   end
 
   circuitfile = File.open(File.expand_path(File.dirname(__FILE__)) + '/fixtures/simple_circuits.txt').readlines
+  complex_circuit = File.open(File.expand_path(File.dirname(__FILE__)) + '/fixtures/complex_circuits.txt').readlines
   circuits = []
   tmp = []
   circuitfile.each do |line|
@@ -24,236 +25,516 @@ describe AllWiredUp do
     tmp = []
   end
 
-  it "should get rid of wires" do
+  it "should get rid of complex wires" do
 
     expected0 = [
       "0\n",
-      "|\n",
-      "O-----------@\n",
-      "1\n"
-    ]
-
-    expected1 = [
-      "0\n",
-      "A------------|\n",
-      "1            |\n",
-      "             X------------@\n",
-      "1            |\n",
-      "N------------|\n"
-    ]
-
-    expected2 = [
-      "0\n",
       "O------------|\n",
       "1            |\n",
-      "             X------------@\n",
-      "1            |\n",
-      "X------------|\n",
-      "1"
+      "             X--------------------|\n",
+      "1            |                    |\n",
+      "A------------|                    |\n",
+      "1                                 O--------------------|\n",
+      "                                  |                    |\n",
+      "0                                 |                    |\n",
+      "N---------------------------------|                    |\n",
+      "                                                       |\n",
+      "0                                                      |\n",
+      "O------------|                                         A------------@\n",
+      "1            |                                         |\n",
+      "             X--------------------|                    |\n",
+      "1            |                    |                    |\n",
+      "A------------|                    |                    |\n",
+      "1                                 O--------------------|\n",
+      "                                  |\n",
+      "0                                 |\n",
+      "N---------------------------------|\n"
     ]
-
-    expected = [
-      "0\n",
-      "|\n",
-      "O-----------@\n",
-      "1\n",
-      "\n",
-      "0\n",
-      "A------------|\n",
-      "1            |\n",
-      "             X------------@\n",
-      "1            |\n",
-      "N------------|\n",
-      "\n",
-      "0\n",
-      "O------------|\n",
-      "1            |\n",
-      "             X------------@\n",
-      "1            |\n",
-      "X------------|\n",
-      "1"
-    ]
-
-    circuit4 = [
-      "ON\n",
-      "\n",
-      "0------------|\n",
-      "             |\n",
-      "             X------------@\n",
-      "             |\n",
-      "0------------|\n",
-      "\n",
-      "1------------|\n",
-      "             |\n",
-      "             X------------@\n",
-      "             |\n",
-      "0------------|\n",
-    ]
-
-    expected4 = [
-      "ON\n",
-      "\n",
-      "0\n",
-      "|\n",
-      "X------------@\n",
-      "|\n",
-      "0\n",
-      "\n",
-      "1\n",
-      "|\n",
-      "X------------@\n",
-      "|\n",
-      "0\n",
-    ]
-
-    @o.get_rid_of_wires(circuits[0]).should == expected0
-    @o.get_rid_of_wires(circuits[1]).should == expected1
-    @o.get_rid_of_wires(circuits[2]).should == expected2
-    @o.get_rid_of_wires(circuitfile).should == expected
-
-    @o.get_rid_of_wires(circuit4).should == expected4
-  end
-
-  it "should find gate outputs" do
-    @o.gate_out(['0','|','O','1']).should == '1'
-    @o.gate_out(['0','A','1']).should == '0'
-    @o.gate_out(['1','N']).should == '0'
-    @o.gate_out(['1','X','1']).should == '0'
-  end
-
-  it "should get the reduction hash" do
-    circuit_level_zero_0 = @o.get_rid_of_wires(circuits[0]).collect { |line| line[0] }
-    circuit_level_zero_1 = @o.get_rid_of_wires(circuits[1]).collect { |line| line[0] }
-    circuit_level_zero_2 = @o.get_rid_of_wires(circuits[2]).collect { |line| line[0] }
-    circuit_level_zero = @o.get_rid_of_wires(circuitfile).collect { |line| line[0] }
-
-    @o.reduction_hash(circuit_level_zero_0).should == { 2 => %w(0 | O 1) }
-    @o.reduction_hash(circuit_level_zero_1).should == { 1 => %w(0 A 1), 5 => %w(1 N) }
-    @o.reduction_hash(circuit_level_zero_2).should == { 1 => %w(0 O 1), 5 => %w(1 X 1) }
-    @o.reduction_hash(circuit_level_zero).should == { 2 => %w(0 | O 1), 6 => %w(0 A 1), 10 => %w(1 N), 13 => %w(0 O 1), 17 => %w(1 X 1) }
-  end
-
-  it "should find output for a gate stage with its output" do
-
-    expected0 = [
-      " \n",
-      " \n",
-      "1-----------@\n",
-      " \n"
-    ]
-
-    expected1 = [
-      " \n",
-      "0------------|\n",
-      "             |\n",
-      "             X------------@\n",
-      "             |\n",
-      "0------------|\n"
-    ]
-
-    expected2 = [
-      " \n",
-      "1------------|\n",
-      "             |\n",
-      "             X------------@\n",
-      "             |\n",
-      "0------------|\n",
-      " "
-    ]
-
-    expected = [
-      " \n",
-      " \n",
-      "1-----------@\n",
-      " \n",
-      "\n",
-      " \n",
-      "0------------|\n",
-      "             |\n",
-      "             X------------@\n",
-      "             |\n",
-      "0------------|\n",
-      "\n",
-      " \n",
-      "1------------|\n",
-      "             |\n",
-      "             X------------@\n",
-      "             |\n",
-      "0------------|\n",
-      " "
-    ]
-
-    circuit0 = @o.get_rid_of_wires(circuits[0])
-    circuit1 = @o.get_rid_of_wires(circuits[1])
-    circuit2 = @o.get_rid_of_wires(circuits[2])
-    circuit = @o.get_rid_of_wires(circuitfile)
-
-    @o.replace_level_zero_gate(circuit0).should == expected0
-    @o.replace_level_zero_gate(circuit1).should == expected1
-    @o.replace_level_zero_gate(circuit2).should == expected2
-    @o.replace_level_zero_gate(circuit).should == expected
-
-  end
-
-  it "should reduce bulbs at level zero to ON or OFF" do
-
-    circuit = [
-      "0------------@\n",
-      "\n",
-      "1------------@\n"
-    ]
-
-    @o.find_and_replace_bulbs_in_level(circuit).should == ["OFF\n","\n","ON\n"]
-
-  end
-
-  it "should find whether there are any bulbs t o be processed" do
-
-    circuit0 = ["OFF\n","\n","ON\n"]
 
     circuit1 = [
-      "0------------@\n",
-      "\n",
-      "1------------@\n"
+      "1------------|\n",
+      "             |\n",
+      "             X--------------------|\n",
+      "             |                    |\n",
+      "1------------|                    |\n",
+      "                                  O--------------------|\n",
+      "                                  |                    |\n",
+      "                                  |                    |\n",
+      "1---------------------------------|                    |\n",
+      "                                                       |\n",
+      "                                                       |\n",
+      "1------------|                                         A------------@\n",
+      "             |                                         |\n",
+      "             X--------------------|                    |\n",
+      "             |                    |                    |\n",
+      "1------------|                    |                    |\n",
+      "                                  O--------------------|\n",
+      "                                  |\n",
+      "                                  |\n",
+      "1---------------------------------|\n"
+    ]
+
+    expected1 = [
+      "1\n",
+      "|\n",
+      "X--------------------|\n",
+      "|                    |\n",
+      "1                    |\n",
+      "                     O--------------------|\n",
+      "                     |                    |\n",
+      "                     |                    |\n",
+      "1--------------------|                    |\n",
+      "                                          |\n",
+      "                                          |\n",
+      "1                                         A------------@\n",
+      "|                                         |\n",
+      "X--------------------|                    |\n",
+      "|                    |                    |\n",
+      "1                    |                    |\n",
+      "                     O--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "1--------------------|\n"
     ]
 
     circuit2 = [
-      " \n",
-      " \n",
-      "1-----------@\n",
-      " \n"
+      "0--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "                     O--------------------|\n",
+      "                     |                    |\n",
+      "                     |                    |\n",
+      "1--------------------|                    |\n",
+      "                                          |\n",
+      "                                          |\n",
+      "                                          A------------@\n",
+      "                                          |\n",
+      "0--------------------|                    |\n",
+      "                     |                    |\n",
+      "                     |                    |\n",
+      "                     O--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "1--------------------|\n"
     ]
 
-    @o.any_more_bulbs?(circuit0).should == false
-    @o.any_more_bulbs?(circuit1).should == true
-    @o.any_more_bulbs?(circuit2).should == true
+    expected2 = [
+      "0\n",
+      "|\n",
+      "|\n",
+      "O--------------------|\n",
+      "|                    |\n",
+      "|                    |\n",
+      "1                    |\n",
+      "                     |\n",
+      "                     |\n",
+      "                     A------------@\n",
+      "                     |\n",
+      "0                    |\n",
+      "|                    |\n",
+      "|                    |\n",
+      "O--------------------|\n",
+      "|\n",
+      "|\n",
+      "1\n"
+    ]
+
+    circuit3 = [
+      "1--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "                     |\n",
+      "                     |\n",
+      "                     |\n",
+      "                     A------------@\n",
+      "                     |\n",
+      "                     |\n",
+      "                     |\n",
+      "                     |\n",
+      "1--------------------|\n"
+    ]
+
+    expected3 = [
+      "1\n",
+      "|\n",
+      "|\n",
+      "|\n",
+      "|\n",
+      "|\n",
+      "A------------@\n",
+      "|\n",
+      "|\n",
+      "|\n",
+      "|\n",
+      "1\n"
+    ]
+
+    @o.get_rid_of_wires(complex_circuit).should == expected0
+    @o.get_rid_of_wires(circuit1).should == expected1
+    @o.get_rid_of_wires(circuit2).should == expected2
+    @o.get_rid_of_wires(circuit3).should == expected3
 
   end
 
-  it "shoudl reduce circuit level by level" do
+  it "should replace level zero gates of a complex circuit" do
 
-    circuit = [
-      "0-------------|\n",
-      "              A------------|\n",
-      "1-------------|            |\n",
-      "                           X------------@\n",
-      "1-------------|            |\n",
-      "              N------------|\n",
-      "\n",
-      "0-------------|\n",
-      "              O------------|\n",
-      "1-------------|            |\n",
-      "                           X------------@\n",
-      "1-------------|            |\n",
-      "              X------------|\n",
-      "1-------------|"
+    circuit0 = [
+      "0\n",
+      "O------------|\n",
+      "1            |\n",
+      "             X--------------------|\n",
+      "1            |                    |\n",
+      "A------------|                    |\n",
+      "1                                 O--------------------|\n",
+      "                                  |                    |\n",
+      "0                                 |                    |\n",
+      "N---------------------------------|                    |\n",
+      "                                                       |\n",
+      "0                                                      |\n",
+      "O------------|                                         A------------@\n",
+      "1            |                                         |\n",
+      "             X--------------------|                    |\n",
+      "1            |                    |                    |\n",
+      "A------------|                    |                    |\n",
+      "1                                 O--------------------|\n",
+      "                                  |\n",
+      "0                                 |\n",
+      "N---------------------------------|\n"
     ]
 
-    circuit = @o.process circuit
+    expected0 = [
+      " \n",
+      "1------------|\n",
+      "             |\n",
+      "             X--------------------|\n",
+      "             |                    |\n",
+      "1------------|                    |\n",
+      "                                  O--------------------|\n",
+      "                                  |                    |\n",
+      "                                  |                    |\n",
+      "1---------------------------------|                    |\n",
+      "                                                       |\n",
+      "                                                       |\n",
+      "1------------|                                         A------------@\n",
+      "             |                                         |\n",
+      "             X--------------------|                    |\n",
+      "             |                    |                    |\n",
+      "1------------|                    |                    |\n",
+      "                                  O--------------------|\n",
+      "                                  |\n",
+      "                                  |\n",
+      "1---------------------------------|\n"
+    ]
 
-    circuit.should == ["OFF\n","\n","ON\n"]
+    circuit1 = [
+      "1\n",
+      "|\n",
+      "X--------------------|\n",
+      "|                    |\n",
+      "1                    |\n",
+      "                     O--------------------|\n",
+      "                     |                    |\n",
+      "                     |                    |\n",
+      "1--------------------|                    |\n",
+      "                                          |\n",
+      "                                          |\n",
+      "1                                         A------------@\n",
+      "|                                         |\n",
+      "X--------------------|                    |\n",
+      "|                    |                    |\n",
+      "1                    |                    |\n",
+      "                     O--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "1--------------------|\n"
+    ]
 
-    @o.process(circuitfile).should == ["ON\n","\n","OFF\n","\n","ON\n"]
+    expected1 = [
+      " \n",
+      " \n",
+      "0--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "                     O--------------------|\n",
+      "                     |                    |\n",
+      "                     |                    |\n",
+      "1--------------------|                    |\n",
+      "                                          |\n",
+      "                                          |\n",
+      "                                          A------------@\n",
+      "                                          |\n",
+      "0--------------------|                    |\n",
+      "                     |                    |\n",
+      "                     |                    |\n",
+      "                     O--------------------|\n",
+      "                     |\n",
+      "                     |\n",
+      "1--------------------|\n"
+    ]
+
+    @o.replace_level_zero_gate(circuit0).should == expected0
+    @o.replace_level_zero_gate(circuit1).should == expected1
+
   end
+
+  it "should find a reduction hash for a complex circuit" do
+    circuit0 = [
+      "1",
+      "|",
+      "X",
+      "|",
+      "1",
+      " ",
+      " ",
+      " ",
+      "1",
+      " ",
+      " ",
+      "1",
+      "|",
+      "X",
+      "|",
+      "1",
+      " ",
+      " ",
+      " ",
+      "1"
+    ]
+
+    expected0 = {2=>{:ip=>["1", "|", "X", "|", "1"], :replace=>[0, 1, 3, 4]}, 13=>{:ip=>["1", "|", "X", "|", "1"], :replace=>[11, 12, 14, 15]}}
+    @o.reduction_hash(circuit0).should == expected0
+  end
+
+  # it "should get rid of wires" do
+
+  #   expected0 = [
+  #     "0\n",
+  #     "|\n",
+  #     "O-----------@\n",
+  #     "1\n"
+  #   ]
+
+  #   expected1 = [
+  #     "0\n",
+  #     "A------------|\n",
+  #     "1            |\n",
+  #     "             X------------@\n",
+  #     "1            |\n",
+  #     "N------------|\n"
+  #   ]
+
+  #   expected2 = [
+  #     "0\n",
+  #     "O------------|\n",
+  #     "1            |\n",
+  #     "             X------------@\n",
+  #     "1            |\n",
+  #     "X------------|\n",
+  #     "1"
+  #   ]
+
+  #   expected = [
+  #     "0\n",
+  #     "|\n",
+  #     "O-----------@\n",
+  #     "1\n",
+  #     "\n",
+  #     "0\n",
+  #     "A------------|\n",
+  #     "1            |\n",
+  #     "             X------------@\n",
+  #     "1            |\n",
+  #     "N------------|\n",
+  #     "\n",
+  #     "0\n",
+  #     "O------------|\n",
+  #     "1            |\n",
+  #     "             X------------@\n",
+  #     "1            |\n",
+  #     "X------------|\n",
+  #     "1"
+  #   ]
+
+  #   circuit4 = [
+  #     "ON\n",
+  #     "\n",
+  #     "0------------|\n",
+  #     "             |\n",
+  #     "             X------------@\n",
+  #     "             |\n",
+  #     "0------------|\n",
+  #     "\n",
+  #     "1------------|\n",
+  #     "             |\n",
+  #     "             X------------@\n",
+  #     "             |\n",
+  #     "0------------|\n",
+  #   ]
+
+  #   expected4 = [
+  #     "ON\n",
+  #     "\n",
+  #     "0\n",
+  #     "|\n",
+  #     "X------------@\n",
+  #     "|\n",
+  #     "0\n",
+  #     "\n",
+  #     "1\n",
+  #     "|\n",
+  #     "X------------@\n",
+  #     "|\n",
+  #     "0\n",
+  #   ]
+
+  #   @o.get_rid_of_wires(circuits[0]).should == expected0
+  #   @o.get_rid_of_wires(circuits[1]).should == expected1
+  #   @o.get_rid_of_wires(circuits[2]).should == expected2
+  #   @o.get_rid_of_wires(circuitfile).should == expected
+
+  #   @o.get_rid_of_wires(circuit4).should == expected4
+  # end
+
+  # it "should find gate outputs" do
+  #   @o.gate_out(['0','|','O','1']).should == '1'
+  #   @o.gate_out(['0','A','1']).should == '0'
+  #   @o.gate_out(['1','N']).should == '0'
+  #   @o.gate_out(['1','X','1']).should == '0'
+  # end
+
+  # it "should get the reduction hash" do
+  #   circuit_level_zero_0 = @o.get_rid_of_wires(circuits[0]).collect { |line| line[0] }
+  #   circuit_level_zero_1 = @o.get_rid_of_wires(circuits[1]).collect { |line| line[0] }
+  #   circuit_level_zero_2 = @o.get_rid_of_wires(circuits[2]).collect { |line| line[0] }
+  #   circuit_level_zero = @o.get_rid_of_wires(circuitfile).collect { |line| line[0] }
+
+  #   @o.reduction_hash(circuit_level_zero_0).should == { 2 => %w(0 | O 1) }
+  #   @o.reduction_hash(circuit_level_zero_1).should == { 1 => %w(0 A 1), 5 => %w(1 N) }
+  #   @o.reduction_hash(circuit_level_zero_2).should == { 1 => %w(0 O 1), 5 => %w(1 X 1) }
+  #   @o.reduction_hash(circuit_level_zero).should == { 2 => %w(0 | O 1), 6 => %w(0 A 1), 10 => %w(1 N), 13 => %w(0 O 1), 17 => %w(1 X 1) }
+  # end
+
+  # it "should find output for a gate stage with its output" do
+
+  #   expected0 = [
+  #     " \n",
+  #     " \n",
+  #     "1-----------@\n",
+  #     " \n"
+  #   ]
+
+  #   expected1 = [
+  #     " \n",
+  #     "0------------|\n",
+  #     "             |\n",
+  #     "             X------------@\n",
+  #     "             |\n",
+  #     "0------------|\n"
+  #   ]
+
+  #   expected2 = [
+  #     " \n",
+  #     "1------------|\n",
+  #     "             |\n",
+  #     "             X------------@\n",
+  #     "             |\n",
+  #     "0------------|\n",
+  #     " "
+  #   ]
+
+  #   expected = [
+  #     " \n",
+  #     " \n",
+  #     "1-----------@\n",
+  #     " \n",
+  #     "\n",
+  #     " \n",
+  #     "0------------|\n",
+  #     "             |\n",
+  #     "             X------------@\n",
+  #     "             |\n",
+  #     "0------------|\n",
+  #     "\n",
+  #     " \n",
+  #     "1------------|\n",
+  #     "             |\n",
+  #     "             X------------@\n",
+  #     "             |\n",
+  #     "0------------|\n",
+  #     " "
+  #   ]
+
+  #   circuit0 = @o.get_rid_of_wires(circuits[0])
+  #   circuit1 = @o.get_rid_of_wires(circuits[1])
+  #   circuit2 = @o.get_rid_of_wires(circuits[2])
+  #   circuit = @o.get_rid_of_wires(circuitfile)
+
+  #   @o.replace_level_zero_gate(circuit0).should == expected0
+  #   @o.replace_level_zero_gate(circuit1).should == expected1
+  #   @o.replace_level_zero_gate(circuit2).should == expected2
+  #   @o.replace_level_zero_gate(circuit).should == expected
+
+  # end
+
+  # it "should reduce bulbs at level zero to ON or OFF" do
+
+  #   circuit = [
+  #     "0------------@\n",
+  #     "\n",
+  #     "1------------@\n"
+  #   ]
+
+  #   @o.find_and_replace_bulbs_in_level(circuit).should == ["OFF\n","\n","ON\n"]
+
+  # end
+
+  # it "should find whether there are any bulbs t o be processed" do
+
+  #   circuit0 = ["OFF\n","\n","ON\n"]
+
+  #   circuit1 = [
+  #     "0------------@\n",
+  #     "\n",
+  #     "1------------@\n"
+  #   ]
+
+  #   circuit2 = [
+  #     " \n",
+  #     " \n",
+  #     "1-----------@\n",
+  #     " \n"
+  #   ]
+
+  #   @o.any_more_bulbs?(circuit0).should == false
+  #   @o.any_more_bulbs?(circuit1).should == true
+  #   @o.any_more_bulbs?(circuit2).should == true
+
+  # end
+
+  # it "shoudl reduce circuit level by level" do
+
+  #   circuit = [
+  #     "0-------------|\n",
+  #     "              A------------|\n",
+  #     "1-------------|            |\n",
+  #     "                           X------------@\n",
+  #     "1-------------|            |\n",
+  #     "              N------------|\n",
+  #     "\n",
+  #     "0-------------|\n",
+  #     "              O------------|\n",
+  #     "1-------------|            |\n",
+  #     "                           X------------@\n",
+  #     "1-------------|            |\n",
+  #     "              X------------|\n",
+  #     "1-------------|"
+  #   ]
+
+  #   circuit = @o.process circuit
+
+  #   circuit.should == ["OFF\n","\n","ON\n"]
+
+  #   @o.process(circuitfile).should == ["ON\n","\n","OFF\n","\n","ON\n"]
+  # end
 
 end

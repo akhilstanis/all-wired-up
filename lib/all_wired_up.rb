@@ -53,24 +53,33 @@ class AllWiredUp
 
   def reduction_hash level_zero
     gates = {}
-    inputs = []
-    output_index = 0
+    inputs =[]
+    replace_index = []
+    output_index = nil
     level_zero.each_index do |index|
       current_input = level_zero[index]
-      if current_input =~ /[XAON]/
+      if current_input =~ /[XOAN]/
         output_index = index
         inputs << current_input
-      elsif current_input == ' ' or current_input.nil? or current_input == "\n"
-        gates[output_index] = inputs
-        inputs = []
-      else
+      elsif current_input =~ /[01|]/
         inputs << current_input
+        replace_index << index
+      elsif current_input == ' ' || current_input == "\n"
+        gates[output_index] = { :ip => inputs, :replace => replace_index }
+        inputs = []
+        replace_index = []
+        output_index = nil
+      else
+        next
       end
     end
-    unless inputs.empty?
-      gates[output_index] = inputs
+    if output_index
+      gates[output_index] = { :ip => inputs, :replace => replace_index }
       inputs = []
+      replace_index = []
+      output_index = nil
     end
+    gates.delete nil
     gates
   end
 
@@ -79,13 +88,13 @@ class AllWiredUp
       line[0]
     end
     gates = reduction_hash level_zero
-    circuit.each_index do |index|
-      if gates[index]
-        circuit[index][0] = gate_out(gates[index])
-      else
-        circuit[index][0] = " " unless circuit[index][0] == "\n"
+    gates.each do |out_index, gate|
+      circuit[out_index][0] = gate_out(gate[:ip])
+      gate[:replace].each do |index|
+        circuit[index][0] = " "
       end
     end
+    circuit
   end
 
   def any_more_bulbs? circuit
@@ -99,10 +108,11 @@ class AllWiredUp
   def process circuit
     while any_more_bulbs?(circuit) do
       circuit = get_rid_of_wires(circuit)
+      circuit.delete_if { |line| [" \n"," "].include? line }
       circuit = replace_level_zero_gate(circuit)
       circuit = find_and_replace_bulbs_in_level(circuit)
-      circuit.delete_if { |line| [" \n"," "].include? line }
     end
+    circuit.delete_if { |line| [" \n"," ",""].include? line }
     circuit
   end
 
