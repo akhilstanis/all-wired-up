@@ -1,17 +1,26 @@
 class AllWiredUp
 
   def get_rid_of_wires circuit
-    limit  = circuit[0].index '|'
+    i = 0
+    limit = nil
+    while limit.nil?
+      limit  = circuit[i].index '|'
+      i += 1
+    end
     circuit.collect do |line|
-      if ' ' == line[0]
-        wire_or_space = line[0...limit]
+      if ["ON\n","OFF\n"].include? line
+        line
       else
-        wire_or_space = line[1..limit]
-      end
-      if line.empty?
-        ''
-      else
-        line.sub wire_or_space, ''
+        if ' ' == line[0]
+          wire_or_space = line[0...limit]
+        else
+          wire_or_space = line[1..limit]
+        end
+        if line.empty?
+          ''
+        else
+          line.sub wire_or_space, ''
+        end
       end
     end
   end
@@ -94,7 +103,7 @@ class AllWiredUp
       circuit = find_and_replace_bulbs_in_level(circuit)
       circuit.delete_if { |line| [" \n"," "].include? line }
     end
-    p circuit
+    circuit
   end
 
 end

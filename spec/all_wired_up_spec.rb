@@ -74,10 +74,44 @@ describe AllWiredUp do
       "1"
     ]
 
+    circuit4 = [
+      "ON\n",
+      "\n",
+      "0------------|\n",
+      "             |\n",
+      "             X------------@\n",
+      "             |\n",
+      "0------------|\n",
+      "\n",
+      "1------------|\n",
+      "             |\n",
+      "             X------------@\n",
+      "             |\n",
+      "0------------|\n",
+    ]
+
+    expected4 = [
+      "ON\n",
+      "\n",
+      "0\n",
+      "|\n",
+      "X------------@\n",
+      "|\n",
+      "0\n",
+      "\n",
+      "1\n",
+      "|\n",
+      "X------------@\n",
+      "|\n",
+      "0\n",
+    ]
+
     @o.get_rid_of_wires(circuits[0]).should == expected0
     @o.get_rid_of_wires(circuits[1]).should == expected1
     @o.get_rid_of_wires(circuits[2]).should == expected2
     @o.get_rid_of_wires(circuitfile).should == expected
+
+    @o.get_rid_of_wires(circuit4).should == expected4
   end
 
   it "should find gate outputs" do
@@ -219,6 +253,7 @@ describe AllWiredUp do
 
     circuit.should == ["OFF\n","\n","ON\n"]
 
+    @o.process(circuitfile).should == ["ON\n","\n","OFF\n","\n","ON\n"]
   end
 
 end
