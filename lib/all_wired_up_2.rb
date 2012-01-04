@@ -61,23 +61,44 @@ class AllWiredUp2
     skip_rows = []
     circuit.each_index do |index|
       next if skip_rows.include? index
-      operand_index = circuit[index].index /[01]/
-      if operand_index
+      operand_index = circuit[index].index /[01]\s/
+      if operand_index && circuit[index+1][operand_index] =~ /[|XAON]/
+        x =index
         row = index
         gate = []
         operator_row = nil
         until circuit[row].nil? || ([" ", nil].include? circuit[row][operand_index]) do
+          if circuit[row][0...operand_index] =~ /[01]/
+            ri = 1
+            gate.reverse_each do |ip|
+              circuit[row-ri][operand_index] = ip
+              ri += 1
+            end
+            break
+          end
           operator_row = row if circuit[row][operand_index] =~ /[XOAN]/
           gate.push circuit[row][operand_index]
           circuit[row][operand_index] = " "
           skip_rows << row
           row += 1
         end
-        circuit[operator_row][operand_index] = gate_out gate
+        begin
+          circuit[operator_row][operand_index] = gate_out(gate) if gate.count > 1
+        rescue
+          next
+          # p operator_row
+          # p operand_index
+          # p x
+          # p circuit[x]
+          # p circuit[x].index /[01]/
+          # p circuit[x+1][operand_index]
+          # p gate
+          # raise Exception
+        end
       end
     end
     @circuit = circuit
-    # circuit.delete_if { |line| line =~ /^[\s]+\n$/ }
+    circuit.delete_if { |line| line =~ /^[\s]+\n$/ }
   end
 
   def any_more_bulbs?
@@ -86,7 +107,6 @@ class AllWiredUp2
     circuit.each do |line|
       ret = true if line =~ /-*@$/
     end
-    pp @circuit Some probelm here modifying @circuit
     ret
   end
 
