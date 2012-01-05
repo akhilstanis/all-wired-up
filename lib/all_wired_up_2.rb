@@ -86,14 +86,6 @@ class AllWiredUp2
           circuit[operator_row][operand_index] = gate_out(gate) if gate.count > 1
         rescue
           next
-          # p operator_row
-          # p operand_index
-          # p x
-          # p circuit[x]
-          # p circuit[x].index /[01]/
-          # p circuit[x+1][operand_index]
-          # p gate
-          # raise Exception
         end
       end
     end
@@ -111,12 +103,11 @@ class AllWiredUp2
   end
 
   def process
-
     while any_more_bulbs? do
       get_rid_of_wires
       get_rid_of_gates
     end
-    @circuit
+    @circuit.delete_if { |line| line =~ /^[\s]+$/ }
   end
 
 end

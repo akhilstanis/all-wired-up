@@ -103,9 +103,9 @@ describe AllWiredUp2 do
   end
 
   it "should process a circuit file" do
-    @o.process.should == ["ON\n", "\n", "OFF\n"]
+    @o.process.should == ["ON\n", "OFF\n"]
     x = AllWiredUp2.new(File.expand_path(File.dirname(__FILE__)) + '/fixtures/complex_circuits.txt')
-    x.process.should == []
+    x.process.should == ["ON\n","ON\n","ON\n","OFF\n","OFF\n","ON\n","ON\n","OFF\n"]
   end
 
 
