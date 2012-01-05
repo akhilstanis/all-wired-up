@@ -107,7 +107,10 @@ class AllWiredUp2
       get_rid_of_wires
       get_rid_of_gates
     end
-    @circuit.delete_if { |line| line =~ /^[\s]+$/ }
+    @circuit.delete_if do |line|
+      puts line.chomp unless line.chomp.empty?
+      line =~ /^[\s]+$/
+    end
   end
 
 end

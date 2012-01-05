@@ -21,7 +21,15 @@ describe AllWiredUp2 do
       "              1            |\n",
       "                           X------------@\n",
       "              1            |\n",
-      "              N------------|\n"
+      "              N------------|\n",
+      "\n",
+      "              0\n",
+      "              O------------|\n",
+      "              1            |\n",
+      "                           X------------@\n",
+      "              1            |\n",
+      "              X------------|\n",
+      "              1"
     ]
 
     simple_level_2 = [
@@ -103,10 +111,15 @@ describe AllWiredUp2 do
   end
 
   it "should process a circuit file" do
-    @o.process.should == ["ON\n", "OFF\n"]
+
+    puts "\nProcessing simple_circuits.txt"
+    @o.process.should == ["ON\n", "OFF\n","ON\n"]
+
     x = AllWiredUp2.new(File.expand_path(File.dirname(__FILE__)) + '/fixtures/complex_circuits.txt')
+    puts "\nProcessing complex_circuits.txt"
     x.process.should == ["ON\n","ON\n","ON\n","OFF\n","OFF\n","ON\n","ON\n","OFF\n"]
-  end
+
+end
 
 
 end
