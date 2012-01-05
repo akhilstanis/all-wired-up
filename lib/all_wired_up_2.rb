@@ -2,25 +2,11 @@ class AllWiredUp2
 
   attr_accessor :circuit
 
-  # if /\s*[01]-*@/ replace it with ! or *
-  # /[01]-*|/ replace with operand above operator
-
-  # c[x][y] = index of /[01]/
-  # while c[x][y] != " " or nil
-  #   if c[x][y] =~ /[AOXN]/
-  #     operator_index = y
-  #   gates << c[x][y]
-  #   c[x][y] = " "
-  #   y++
-  # end
-  # c[x][opeartor_index] = out(gates)
-
-  # delete empty lines
-
   def initialize path_to_circuit_file
     File.open path_to_circuit_file do |file|
       @circuit = file.readlines
     end
+    @output_file = "#{File.dirname(path_to_circuit_file)}/#{File.basename(path_to_circuit_file).split('.').insert(1,'_output.').join}"
   end
 
   def get_rid_of_wires optional_circuit=nil
@@ -28,7 +14,7 @@ class AllWiredUp2
     @circuit = circuit.collect do |line|
       bulb_match = line.match /\s*(?<operand>[01])-*[@]$/
       if bulb_match
-        bulb_match['operand'] == "0" ? "OFF\n" : "ON\n"
+        bulb_match['operand'] == "0" ? "off\n" : "on\n"
       else
         match = line.match /\s*(?<operand>[01])-*[|]/
         if match
@@ -63,7 +49,6 @@ class AllWiredUp2
       next if skip_rows.include? index
       operand_index = circuit[index].index /[01]\s/
       if operand_index && circuit[index+1][operand_index] =~ /[|XAON]/
-        x =index
         row = index
         gate = []
         operator_row = nil
@@ -107,10 +92,17 @@ class AllWiredUp2
       get_rid_of_wires
       get_rid_of_gates
     end
+
     @circuit.delete_if do |line|
-      puts line.chomp unless line.chomp.empty?
       line =~ /^[\s]+$/
     end
+
+    puts @circuit.join.chomp
+
+    File.open @output_file, "w" do |file|
+      file.write @circuit.join
+    end
+    @circuit
   end
 
 end

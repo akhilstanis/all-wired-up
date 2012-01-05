@@ -2,6 +2,23 @@ require 'spec_helper'
 require 'all_wired_up_2'
 require 'pp'
 
+  # Basic Logic
+
+  # if /\s*[01]-*@/ replace it with ! or *
+  # /[01]-*|/ replace with operand above operator
+
+  # c[x][y] = index of /[01]/
+  # while c[x][y] != " " or nil
+  #   if c[x][y] =~ /[AOXN]/
+  #     operator_index = y
+  #   gates << c[x][y]
+  #   c[x][y] = " "
+  #   y++
+  # end
+  # c[x][opeartor_index] = out(gates)
+
+  # delete empty lines
+
 describe AllWiredUp2 do
 
   before :each do
@@ -43,7 +60,7 @@ describe AllWiredUp2 do
     ]
 
     @o.get_rid_of_wires(simple_level_2).should == [
-      "ON\n",
+      "on\n",
       "\n",
       "                           0\n",
       "                           |\n",
@@ -53,15 +70,15 @@ describe AllWiredUp2 do
     ]
 
     simple_level_3 = [
-      "ON\n",
+      "on\n",
       "\n",
       "                           0------------@\n",
     ]
 
     @o.get_rid_of_wires(simple_level_3).should == [
-      "ON\n",
+      "on\n",
       "\n",
-      "OFF\n",
+      "off\n",
     ]
 
   end
@@ -93,7 +110,7 @@ describe AllWiredUp2 do
     ]
 
     level_1 = [
-      "ON\n",
+      "on\n",
       "\n",
       "                           0\n",
       "                           |\n",
@@ -103,7 +120,7 @@ describe AllWiredUp2 do
     ]
 
     @o.get_rid_of_gates(level_1).should == [
-      "ON\n",
+      "on\n",
       "\n",
       "                           0------------@\n"
     ]
@@ -113,11 +130,11 @@ describe AllWiredUp2 do
   it "should process a circuit file" do
 
     puts "\nProcessing simple_circuits.txt"
-    @o.process.should == ["ON\n", "OFF\n","ON\n"]
+    @o.process.should == ["on\n", "off\n","on\n"]
 
     x = AllWiredUp2.new(File.expand_path(File.dirname(__FILE__)) + '/fixtures/complex_circuits.txt')
     puts "\nProcessing complex_circuits.txt"
-    x.process.should == ["ON\n","ON\n","ON\n","OFF\n","OFF\n","ON\n","ON\n","OFF\n"]
+    x.process.should == ["on\n","on\n","on\n","off\n","off\n","on\n","on\n","off\n"]
 
 end
 
